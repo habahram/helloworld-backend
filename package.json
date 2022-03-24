@@ -17,6 +17,7 @@
   },
   "homepage": "https://github.com/habahram/helloworld-backend#readme",
   "dependencies": {
+    "bcrypt": "^5.0.1",
     "express": "^4.17.3"
   }
 }
