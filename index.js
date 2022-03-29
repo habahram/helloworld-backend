@@ -1,5 +1,6 @@
 //dependencies
 const express = require('express');
+var cors = require('cors');
 const { store } = require('./temporarily-store/store');
 
 
@@ -7,6 +8,7 @@ const application = express();
 const port = process.env.PORT || 4002 ;
 
 //middlewares
+application.use(cors());
 application.use(express.json());
 
 
