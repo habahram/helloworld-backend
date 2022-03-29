@@ -4,7 +4,7 @@ const { store } = require('./temporarily-store/store');
 
 
 const application = express();
-const port = 4002;
+const port = process.env.PORT || 4002 ;
 
 //middlewares
 application.use(express.json());
