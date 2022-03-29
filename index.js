@@ -12,7 +12,7 @@ application.use(express.json());
 
 //methods
 application.get('/', (request, response) => {
-    response.status(200).json({ done: true, message: 'Fine!' });
+    response.status(200).json({ done: true, message: 'Welcome to hello world backend API!' });
 });
 
 application.post('/register', (request, response) => {

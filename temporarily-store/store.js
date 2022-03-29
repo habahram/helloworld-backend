@@ -1,6 +1,6 @@
 const bcrypt = require('bcrypt');
 let { customers } = require('./customers');
-let { quizzess } = require('./data');
+let { quizzes } = require('./data');
 
 let store = {
 
@@ -24,7 +24,7 @@ let store = {
     },
 
     getQuiz: (id) => {
-       let quiz = quizzess.find(x = x.name.toLowerCase() === id.toLowerCase());
+       let quiz = quizzes.find(x => x.name.toLowerCase() === id.toLowerCase());
        if(quiz) {
            return {done: true, quiz};
        } else {
