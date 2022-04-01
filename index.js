@@ -47,8 +47,10 @@ application.get('/quiz/:id', (request, response) => {
 });
 
 
-application.get('/scores', (request, response) => {
-    let scores = store.getScores();
+application.get('/scores/:quiztaker/:quizname', (request, response) => {
+    let quizTaker = request.params.quiztaker;
+    let quizName = request.params.quizName;
+    let scores = store.getScores(quizTaker, quizName);
     response.status(200).json({ done: true, result: scores });
     
 });
