@@ -5,4 +5,4 @@ let scores = [];
 //(quizTaker shoudl be the email of the user and quizId is the id of the quiz):
 //scores.push({quizTaker: '', quizId: '', score: '', date: ''});
 
-exports.scores = scores;
+module.exports = { scores };

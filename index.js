@@ -46,6 +46,13 @@ application.get('/quiz/:id', (request, response) => {
     }
 });
 
+
+application.get('/scores', (request, response) => {
+    let scores = store.getScores();
+    response.status(200).json({ done: true, result: scores });
+    
+});
+
 application.listen(port, () => {
     console.log(`Listening to the port ${port} `);
 })

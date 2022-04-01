@@ -1,6 +1,7 @@
 const bcrypt = require('bcrypt');
 let { customers } = require('./customers');
 let { quizzes } = require('./data');
+let { scores } = require('./scores')
 
 let store = {
 
@@ -30,6 +31,10 @@ let store = {
        } else {
            return {done: false, message: 'No quiz with this name was found.'};
        }
+    },
+
+    getScores: () => {
+        return scores;
     }
 
 }
