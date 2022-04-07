@@ -1,7 +1,7 @@
 //dependencies
 const express = require('express');
 var cors = require('cors');
-const { store } = require('./temporarily-store/store');
+const { store } = require('./data_access/store');
 
 
 const application = express();
@@ -21,19 +21,32 @@ application.post('/register', (request, response) => {
     let name = request.body.name;
     let email = request.body.email;
     let password = request.body.password;
-    store.addCustomer(name, email, password);
-    response.status(200).json({ done: true, message: 'The customer was added successfully!' });
+   
+    store.addCustomer(name, email, password)
+    .then(x => response.status(200).json({ done: true, message: 'The customer was added successfully!' }))
+    .catch(e => {
+        console.log(e);
+        response.status(500).json({done: false, message: 'The customer was not added due to an error.'});
+    });
+    
 });
 
 application.post('/login', (request, response) => {
     let email = request.body.email;
     let password = request.body.password;
-    let result = store.login(email, password);
-    if (result.valid) {
-        response.status(200).json({ done: true, message: 'The customer logged in successfully!' });
-    } else {
-        response.status(401).json({ done: false, message: result.message });
-    }
+    store.login(email, password)
+    .then(x => {
+        if(x.valid) {
+            response.status(200).json({ done: true, message: 'The customer logged in successfully!' });
+        } else {
+            response.status(401).json({ done: false, message: x.message });
+        }
+    })
+    .catch(e => {
+        console.log(e);
+        response.status(500).json({done: false, message: 'Something went wrong.'});
+    });
+    
 });
 
 application.get('/quiz/:id', (request, response) => {
