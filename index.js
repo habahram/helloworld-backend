@@ -49,14 +49,20 @@ application.post('/login', (request, response) => {
     
 });
 
-application.get('/quiz/:id', (request, response) => {
-    let id = request.params.id;
-    let result = store.getQuiz(id);
-    if (result.done) {
-        response.status(200).json({ done: true, result: result.quiz });
-    } else {
+application.get('/quiz/:name', (request, response) => {
+    let name = request.params.name;
+    store.getQuiz(name)
+    .then(x => {
+       if(x.id) {
+        response.status(200).json({ done: true, result: x });
+       } else {
         response.status(404).json({ done: false, message: result.message });
-    }
+       }
+    })
+    .catch(e => {
+        console.log(e);
+        response.status(500).json({done: false, message: 'Something went wrong.'});
+    })    
 });
 
 
