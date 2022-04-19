@@ -12,6 +12,14 @@ application.use(cors());
 application.use(express.json());
 
 
+application.use((request, response, next) => {
+    console.log(`request url: ${request.url}`);
+    console.log(`request method: ${request.method}`);
+    //only for development. Remove this line when you deploy your final version.
+    console.log(`request body: ${request.body}`);
+    next();
+})
+
 //methods
 application.get('/', (request, response) => {
     response.status(200).json({ done: true, message: 'Welcome to hello world backend API!' });

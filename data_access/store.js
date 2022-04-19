@@ -1,7 +1,7 @@
 const bcrypt = require('bcrypt');
 const { Pool } = require('pg');
 require('dotenv').config();
-let { quizzes } = require('../temporarily-store/data');
+
 
 const connectionString =
     `postgres://${process.env.USERNAME}:${process.env.PASSWORD}@${process.env.HOST}:${process.env.DATABASEPORT}/${process.env.DATABASE}`;
