@@ -8,9 +8,7 @@ drop table if exists imagequiz.customer;
 drop table if exists imagequiz.quiz_question; 
 drop table if exists imagequiz.question;
 drop table if exists imagequiz.quiz; 
-drop table if exists imagequiz.category; 
-
-
+drop table if exists imagequiz.category;
 drop table if exists imagequiz.flowers; 
 
 create table imagequiz.customer
