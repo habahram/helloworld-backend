@@ -3,10 +3,13 @@ const express = require('express');
 var cors = require('cors');
 var passport = require('passport');
 var LocalStrategy = require('passport-local');
-var GoogleStrategy = require('passport-google-oidc');
+const GoogleStrategy = require("passport-google-oauth2").Strategy;
+
 var session = require('express-session');
 var SQLiteStore = require('connect-sqlite3')(session);
 const { store } = require('./data_access/store');
+let backendURL = "http://localhost:4002";
+let frontEndUrl = "http://localhost:3000";
 
 
 const application = express();
@@ -14,7 +17,7 @@ const port = process.env.PORT || 4002;
 
 //middlewares
 application.use(cors({
-  origin: "http://localhost:3000",
+  origin: frontEndUrl,
   credentials: true
 }));
 application.use(express.json());
@@ -47,50 +50,24 @@ passport.use(
   }));
 
 passport.use(new GoogleStrategy({
-  clientID: process.env['GOOGLE_CLIENT_ID'],
-  clientSecret: process.env['GOOGLE_CLIENT_SECRET'],
-  callbackURL: 'https://www.example.com/oauth2/redirect/google'
+  clientID: process.env.GOOGLE_CLIENT_ID,
+  clientSecret: process.env.GOOGLE_CLIENT_SECRET,
+  callbackURL: `${backendURL}/auth/google/callback`,
+  passReqToCallback: true
 },
-  function (issuer, profile, cb) {
-    db.get('SELECT * FROM federated_credentials WHERE provider = ? AND subject = ?', [
-      issuer,
-      profile.id
-    ], function (err, cred) {
-      if (err) { return cb(err); }
-      if (!cred) {
-        // The Google account has not logged in to this app before.  Create a
-        // new user record and link it to the Google account.
-        db.run('INSERT INTO users (name) VALUES (?)', [
-          profile.displayName
-        ], function (err) {
-          if (err) { return cb(err); }
+  function (request, accessToken, refreshToken, profile, done) {
+    console.log('in Google strategy:');
+    //console.log(profile);
+    store.findOrCreateNonLocalCustomer(profile.displayName, profile.email, profile.id, profile.provider)
+      .then(x => done(null, x))
+      .catch(e => {
+        console.log(e);
+        return done('Something went wrong.');
+      });
 
-          var id = this.lastID;
-          db.run('INSERT INTO federated_credentials (user_id, provider, subject) VALUES (?, ?, ?)', [
-            id,
-            issuer,
-            profile.id
-          ], function (err) {
-            if (err) { return cb(err); }
-            var user = {
-              id: id.toString(),
-              name: profile.displayName
-            };
-            return cb(null, user);
-          });
-        });
-      } else {
-        // The Google account has previously logged in to the app.  Get the
-        // user record linked to the Google account and log the user in.
-        db.get('SELECT * FROM users WHERE id = ?', [cred.user_id], function (err, user) {
-          if (err) { return cb(err); }
-          if (!user) { return cb(null, false); }
-          return cb(null, user);
-        });
-      }
-    })
-  }
-));
+  }));
+
+
 
 application.use(session({
   secret: 'keyboard cat',
@@ -143,6 +120,39 @@ application.get('/login/succeeded', (request, response) => {
 application.get('/login/failed', (request, response) => {
   response.status(401).json({ done: false, message: 'The credentials are not valid.' });
 });
+
+application.get('/auth/google',
+  passport.authenticate('google', {
+    scope:
+      ['email', 'profile']
+  }
+  ));
+
+application.get('/auth/google/callback',
+  passport.authenticate('google', {
+    successRedirect: '/auth/google/success',
+    failureRedirect: '/auth/google/failure'
+  }));
+
+  application.get('/auth/google/success', (request, response) => {
+    console.log('/auth/google/success');
+    console.log(request.user);
+    response.redirect(`${frontEndUrl}/#/google/${request.user.username}/${request.user.name}`);
+  
+  });
+  application.get('/auth/google/failure', (request, response) => {
+    console.log('/auth/google/failure');
+    response.redirect(`${frontEndUrl}/#/google/failed`);
+  });
+
+  application.get('/isloggedin', (request, response) => {
+    if(request.isAuthenticated()) {
+      response.status(200).json({ done: true, result: true });
+    } else {
+      response.status(410).json({ done: false, result: false });
+    }  
+    
+    });
 
 application.post('/logout', function (request, response) {
   request.logout();
